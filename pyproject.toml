@@ -5,7 +5,9 @@ description = "A server-side rendered Flask application for Fashion Paradise, bu
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "bcrypt>=4.3.0",
     "dotenv>=0.9.9",
     "flask>=3.1.1",
-    "httpx>=0.28.1",
+    "pydantic>=2.11.7",
+    "pymongo>=4.14.0",
 ]
