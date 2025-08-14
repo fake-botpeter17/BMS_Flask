@@ -1,0 +1,39 @@
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+h1 {
+    font-family: 'Pacifico', cursive;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
+.floating {
+    animation: float 6s ease-in-out infinite;
+}
+
+.fabric-pattern {
+    background-image: 
+        radial-gradient(circle at 10px 10px, rgba(233, 169, 133, 0.08) 2px, transparent 2px),
+        radial-gradient(circle at 30px 30px, rgba(233, 169, 133, 0.08) 2px, transparent 2px);
+    background-size: 40px 40px;
+}
+
+.input-highlight {
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0 2px rgba(233, 169, 133, 0);
+}
+
+.input-highlight:focus {
+    box-shadow: 0 0 0 2px rgba(233, 169, 133, 0.5);
+}
+
+.login-card {
+    background: linear-gradient(145deg, #0b5553, #063b3a);
+    border: 1px solid rgba(233, 169, 133, 0.4);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 20px rgba(233, 169, 133, 0.15);
+}

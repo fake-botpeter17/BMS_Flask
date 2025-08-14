@@ -34,6 +34,7 @@ The system reuses previously developed Python utility modules for **API integrat
 ```
 fashion-paradise-ssr/
 │
+├── main.py             # Server Entry point
 ├── app.py               # Flask app entry point
 ├── utils/               # Reused utility modules
 ├── templates/           # HTML templates (SSR views)

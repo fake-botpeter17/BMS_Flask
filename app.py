@@ -1,7 +1,7 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
 @app.route('/', methods = ['GET'])
 def login():
-    return "Welcome to Fashion Paradise."
+    return render_template('login.html')
