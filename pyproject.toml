@@ -1,0 +1,9 @@
+[project]
+name = "bms-flask"
+version = "0.1.0"
+description = "A server-side rendered Flask application for Fashion Paradise, built with vanilla HTML, CSS, and JavaScript. Reuses existing utility modules for API integration, authentication, and data handling. Designed for fast, theme-consistent UI rendering without heavy frontend frameworks."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.1.1",
+]
