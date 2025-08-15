@@ -1,5 +1,6 @@
 from typing import Union
 from pydantic import BaseModel
+# Refactor imports and rename to "schemas.py"
 
 
 class User(BaseModel):
