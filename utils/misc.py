@@ -9,7 +9,7 @@ def run_periodically(func, interval=30 * 60, *args, **kwargs):
 
     Args:
         func: Function to be run periodically
-        interval: Number of seconds to wait between each run. Default is 30 minutes.
+        interval: Number of seconds to wait between each run. Dgit push --set-upstream origin routesefault is 30 minutes.
         *args: Arguments to be passed to the function
         **kwargs: Keyword arguments to be passed to the function
 
@@ -46,7 +46,7 @@ def read_json_file(path: Path) -> dict:
         return load(p)
 
 
-def write_json_file(path: Path, data, *args):
+def write_json_file(path: Path, data, indent = 4):
     """
     Writes a Python object as JSON to the given path.
 
@@ -55,5 +55,5 @@ def write_json_file(path: Path, data, *args):
         data: The Python object to be written as JSON.
         *args: Additional arguments to pass to the json.dump function.
     """
-    with open(path) as f:
-        dump(data, fp=f, *args)
+    with open(path, 'w') as f:
+        dump(data, fp=f, indent = indent)
