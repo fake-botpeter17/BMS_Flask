@@ -27,8 +27,8 @@ def authenticate_user():
     if authenticated(user, password):
         revokeKey(kid)
         return jsonify(
-            User(user).model_dump()
+            User(**user).model_dump()
             | {"success": True}
-            | generate_refresh_access_tokens(User(user))
+            | generate_refresh_access_tokens(User(**user))
         ), 200
     return jsonify({"success": False})
