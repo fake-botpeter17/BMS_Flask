@@ -52,7 +52,7 @@ def load_processed_items(isAdmin: bool) -> dict[int, dict]:
     for key in data:
         raw_item: dict = data[key]
         data[key]: Item = Item(**raw_item)
-    cached_items: dict[int, dict] = data
+    cached_items = data
     return load_processed_items(isAdmin)
 
 
