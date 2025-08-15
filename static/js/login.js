@@ -1,3 +1,7 @@
+let PUBLIC_KEY = "";
+let KID = "";
+
+
 function setEyeIcon(passwordInput, eyeIcon) {
     if (passwordInput.type === 'password') {
         // Slashed eye for hidden password
@@ -32,52 +36,114 @@ function togglePassword() {
     setEyeIcon(passwordInput, eyeIcon);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+function pemToArrayBuffer(pem) {
+    // Remove the BEGIN/END lines and newlines
+    const b64 = pem
+        .replace(/-----BEGIN PUBLIC KEY-----/, '')
+        .replace(/-----END PUBLIC KEY-----/, '')
+        .replace(/\s+/g, '');
+    const binary = atob(b64);
+    const len = binary.length;
+    const buffer = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        buffer[i] = binary.charCodeAt(i);
+    }
+    return buffer.buffer;
+}
+
+async function login(username, password) {
+    const importedKey = await importPublicKey(PUBLIC_KEY);
+
+    const credentials = {
+        username: username,
+        password: password,
+        timestamp: Date.now()
+    }
+
+    const encryptedData = await encryptCredentials(importedKey, credentials);
+
+    const response = await fetch('/auth', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            kid: KID,
+            encrypted_data: encryptedData
+        })
+    });
+
+    return response.json()
+
+}
+
+async function getPublicKey() {
+    const response = await fetch('/auth/tmpKey', {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    const data = await response.json();
+    KID = data.kid;
+    PUBLIC_KEY = data.public_key;
+}
+
+async function importPublicKey(pem) {
+    const arrayBuffer = pemToArrayBuffer(pem);
+    return await crypto.subtle.importKey(
+        "spki",                   // Public key format
+        arrayBuffer,              // Key data
+        { name: "RSA-OAEP", hash: "SHA-256" }, // Algorithm
+        false,                    // Not extractable
+        ["encrypt"]               // Only for encryption
+    );
+}
+
+async function encryptCredentials(publicKey, credentialsObj) {
+    const encoder = new TextEncoder();
+    const encoded = encoder.encode(JSON.stringify(credentialsObj));
+    const encrypted = await crypto.subtle.encrypt(
+        { name: "RSA-OAEP" },
+        publicKey,
+        encoded
+    );
+    return btoa(String.fromCharCode(...new Uint8Array(encrypted))); // Base64 encode
+}
+
+
+
+document.addEventListener('DOMContentLoaded', async function () {
+    await getPublicKey();  // fetch key on page load
+
     const loginForm = document.getElementById('loginForm');
     const passwordInput = document.getElementById('password');
     const eyeIcon = document.getElementById('eye-icon');
 
-    // Ensure correct eye icon is shown on load
     setEyeIcon(passwordInput, eyeIcon);
 
     if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
+        loginForm.addEventListener('submit', async function (e) { // <-- async here
             e.preventDefault();
-            
+
             const username = document.getElementById('username').value;
             const password = passwordInput.value;
-            
+
             if (username.trim() === '' || password.trim() === '') {
                 alert('Please enter both username and password');
                 return;
             }
-            
+
             const loginCard = document.querySelector('.transform');
             loginCard.classList.add('animate-pulse');
-            
-            setTimeout(() => {
-                loginCard.classList.remove('animate-pulse');
+
+            const res_json = await login(username, password); // <-- now works
+            loginCard.classList.remove('animate-pulse');
+
+            if (res_json.success) {
                 alert('Login successful! (This is a demo)');
-            }, 1000);
+            } else {
+                alert('Incorrect username or password');
+            }
         });
     }
-
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            const svg = this.parentElement.querySelector('svg');
-            if (svg) {
-                svg.classList.add('text-[#e9a985]');
-                svg.classList.remove('text-gray-300');
-            }
-        });
-        
-        input.addEventListener('blur', function() {
-            const svg = this.parentElement.querySelector('svg');
-            if (svg) {
-                svg.classList.remove('text-[#e9a985]');
-                svg.classList.add('text-gray-300');
-            }
-        });
-    });
 });
+
