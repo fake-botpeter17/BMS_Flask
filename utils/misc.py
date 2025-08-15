@@ -9,7 +9,7 @@ def run_periodically(func, interval=30 * 60, *args, **kwargs):
 
     Args:
         func: Function to be run periodically
-        interval: Number of seconds to wait between each run. Dgit push --set-upstream origin routesefault is 30 minutes.
+        interval: Number of seconds to wait between each run. Default is 30 minutes.
         *args: Arguments to be passed to the function
         **kwargs: Keyword arguments to be passed to the function
 
