@@ -3,12 +3,9 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Hash import SHA256
 from uuid import uuid4
+from db.redis_client import delete_key, set_key, get_key
 from typing import Optional
-from datetime import datetime, timezone, timedelta
 import base64
-
-
-generated_keys = {}
 
 
 def generate_rsa_keys() -> tuple[bytes, bytes]:
@@ -51,14 +48,9 @@ def getKey(expiry_minutes=5):
     Returns:
         tuple: A tuple containing the kid (str) and public key (bytes).
     """
-    global generated_keys
     kid = str(uuid4())
     private_key, public_key = generate_rsa_keys()
-    generated_keys[kid] = {
-        "private_key": private_key,
-        "created_at": datetime.now(timezone.utc),
-        "expires_at": datetime.now(timezone.utc) + timedelta(minutes=expiry_minutes),
-    }
+    set_key(key=kid, value=private_key.decode(), expire=expiry_minutes * 60)
     return kid, public_key
 
 
@@ -72,19 +64,15 @@ def getPrivateKey(kid: str) -> Optional[bytes]:
     Returns:
         Optional[bytes]: The private key if it exists and has not expired, None otherwise.
     """
-    key_data = generated_keys.get(kid)
+    key_data = get_key(kid)
     if not key_data:
         return None
-    if datetime.now(timezone.utc) > key_data["expires_at"]:
-        del generated_keys[kid]
-        return None
-    return key_data["private_key"]
+    delete_key(kid)
+    return key_data.encode()
 
 
-def revokeKey(kid: str) -> bool:
-    if generated_keys.pop(kid, None):
-        return True
-    return False
+def revokeKey(kid: str) -> None:
+    delete_key(kid)
 
 
 def generate_refresh_access_tokens(user: User) -> dict[str, str]:
