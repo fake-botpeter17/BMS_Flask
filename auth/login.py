@@ -1,6 +1,7 @@
 from flask import request
 from auth import auth_bp
 from json import loads
+from auth.decorators import require_auth
 from db.users import getUser, authenticated
 from .tokens import (
     getPrivateKey,
@@ -8,7 +9,7 @@ from .tokens import (
     revokeKey
 )
 from utils.types import User
-from .responses import auth_failed, key_error, user_authenticated
+from .responses import auth_failed, key_error, user_authenticated, token_missing
 
 
 @auth_bp.route("/", methods=["POST"])
@@ -30,3 +31,13 @@ def authenticate_user():
         revokeKey(kid)
         return user_authenticated(User(**user))
     return auth_failed()
+
+
+@auth_bp.route('/logout')
+@require_auth
+def logout():
+    refresh = request.cookies.get('refresh_token')
+    if not refresh:
+        return token_missing()
+    revokeKey(refresh)
+    return True
