@@ -1,14 +1,16 @@
-from utils.types import User
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Hash import SHA256
 from uuid import uuid4
+import datetime
+from jwt import encode, InvalidTokenError, ExpiredSignatureError, decode
 from db.redis_client import delete_key, set_key, get_key
 from typing import Optional
 import base64
 from app import app
 
-SECRET_KEY = app.config['SECRET_KEY']
+SECRET_KEY = app.config["SECRET_KEY"]
+
 
 def generate_rsa_keys() -> tuple[bytes, bytes]:
     """
@@ -76,6 +78,23 @@ def getPrivateKey(kid: str) -> Optional[bytes]:
 def revokeKey(kid: str) -> None:
     delete_key(kid)
 
+
 def generate_token(user_id: str, refresh: bool = True):
-    
-    pass
+    exp = {"days": 7} if refresh else {"mins": 30}
+    payload = {
+        "user_id": user_id,
+        "exp": datetime.datetime.now(datetime.timezone.utc)
+        + datetime.timedelta(**exp),  # longer life
+        "type": "refresh" if refresh else "access",
+    }
+    return encode(payload, SECRET_KEY, algorithm="HS256")
+
+
+def verify_token(token):
+    try:
+        payload = decode(token, SECRET_KEY, algorithms=["HS256"])
+        return payload
+    except ExpiredSignatureError:
+        return None  # expired
+    except InvalidTokenError:
+        return None  # tampered
