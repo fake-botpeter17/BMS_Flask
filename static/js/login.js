@@ -98,6 +98,50 @@ async function importPublicKey(pem) {
     );
 }
 
+async function apiFetch(url, options = {}) {
+    if (!options.headers) options.headers = {};
+    options.headers["Authorization"] = `Bearer ${window.accessToken}`;
+
+    let res = await fetch(url, options);
+
+    if (res.status === 401) {
+        // Access token expired → try refresh
+        const refreshed = await refreshAccessToken();
+        if (!refreshed) {
+            // Refresh failed → force login
+            window.location.href = "/auth/login";
+            return;
+        }
+
+        // Retry request with new token
+        options.headers["Authorization"] = `Bearer ${window.accessToken}`;
+        res = await fetch(url, options);
+    }
+
+    return res.json();
+}
+
+
+async function refreshAccessToken() {
+    try {
+        const res = await fetch("/auth/refresh", {
+            method: "POST",
+            credentials: "include" // VERY important so cookies are sent
+        });
+
+        if (!res.ok) return false;
+
+        const data = await res.json();
+        sessionStorage.setItem("access",data.access_token);
+        sessionStorage.setItem("accessTokenExpiry", Date.now() + (data.expires_in * 1000));
+        return true;
+    } catch (e) {
+        console.error("Failed to refresh token", e);
+        return false;
+    }
+}
+
+
 async function encryptCredentials(publicKey, credentialsObj) {
     const encoder = new TextEncoder();
     const encoded = encoder.encode(JSON.stringify(credentialsObj));
@@ -113,6 +157,13 @@ async function encryptCredentials(publicKey, credentialsObj) {
 
 document.addEventListener('DOMContentLoaded', async function () {
     await getPublicKey();  // fetch key on page load
+
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+        // Already logged in → redirect
+        window.location.href = "/inventory/getItems";
+        return;
+    }
 
     const loginForm = document.getElementById('loginForm');
     const passwordInput = document.getElementById('password');
@@ -139,10 +190,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             loginCard.classList.remove('animate-pulse');
 
             if (res_json.success) {
-                alert('Login successful! (This is a demo)');
+                sessionStorage.setItem("access",res_json.access_token);
+                window.location.href = '/inventory/getItems';
             } else if (res_json.expired) {
-                alert("Key Expired! Fetching new key. Please try again.");
                 await getPublicKey();
+
             }
             else {
                 alert("Wrong Username or Password!");
