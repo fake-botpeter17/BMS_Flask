@@ -14,7 +14,6 @@ def getUserSalt(salt_id):
     with open("db/BillingInfo.dat", "rb+") as f:
         data: dict[str, bytes] = load(f)
     salt = data.get(salt_id)
-    print(f"{salt = }")
     return salt
 
 
