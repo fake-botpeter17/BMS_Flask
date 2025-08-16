@@ -129,7 +129,7 @@ async function refreshAccessToken() {
             credentials: "include" // VERY important so cookies are sent
         });
 
-        if (!res.ok) return false;
+        if (res.status >= 400) return false;
 
         const data = await res.json();
         sessionStorage.setItem("access",data.access_token);
