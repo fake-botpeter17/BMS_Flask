@@ -1,15 +1,14 @@
-from flask import request, jsonify
+from flask import request
 from auth import auth_bp
 from json import loads
 from db.users import getUser, authenticated
 from .tokens import (
     getPrivateKey,
     decrypt_with_private_key,
-    revokeKey,
-    generate_refresh_access_tokens,
+    revokeKey
 )
-from .responses import key_error
 from utils.types import User
+from .responses import auth_failed, key_error, user_authenticated
 
 
 @auth_bp.route("/", methods=["POST"])
@@ -26,12 +25,8 @@ def authenticate_user():
     password = decrypted_data.get("password")
     user = getUser(username)
     if user is None:
-        return jsonify({"success": False})
+        return auth_failed()
     if authenticated(user, password):
         revokeKey(kid)
-        return jsonify(
-            User(**user).model_dump()
-            | {"success": True}
-            | generate_refresh_access_tokens(User(**user))
-        ), 200
-    return jsonify({"success": False})
+        return user_authenticated(User(**user))
+    return auth_failed()
