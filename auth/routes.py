@@ -14,18 +14,21 @@ def get_temp_key():
     return jsonify({"kid": kid, "public_key": public_key.decode()}), 200
 
 
-@auth_bp.route('/refresh', methods=["POST"])
+@auth_bp.route("/refresh", methods=["POST"])
 def refresh_token():
-    auth_header = request.headers.get('Authorization')
-    if not auth_header:
+    token = request.cookies.get('refresh_token')
+
+    if not token:
         return token_missing()
 
-    token = auth_header.split(' ')[1]
     data = verify_token(token)
+
     if data is None:
         return token_error()
-    if get_key(token) != data['id']:
+
+    if get_key(token) != data["user_id"]:
         return token_error()
-    user = User(**getUser(data['id']))
+
+    user = User(**getUser(data["user_id"]))
     delete_key(token)
     return token_refreshed(user)
