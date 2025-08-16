@@ -1,9 +1,7 @@
 from flask import jsonify, request
-
 from db.users import getUser
 from .tokens import getKey, verify_token
 from .responses import token_error, token_refreshed, token_missing
-from utils.types import User
 from db.redis_client import delete_key, get_key
 from auth import auth_bp
 
@@ -29,6 +27,6 @@ def refresh_token():
     if get_key(token) != data["user_id"]:
         return token_error()
 
-    user = User(**getUser(data["user_id"]))
+    user = getUser(data["user_id"],obj=True)
     delete_key(token)
     return token_refreshed(user)
