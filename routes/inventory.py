@@ -7,6 +7,6 @@ inventory_bp = Blueprint("inventory", __name__, url_prefix='/inventory')
 
 @inventory_bp.route('/getItems')
 @require_auth
-def getItems():
-    return jsonify(get_items(request.args.get('admin'))), 200
+def getItems(**kwargs):
+    return jsonify(get_items(**kwargs)), 200
 
