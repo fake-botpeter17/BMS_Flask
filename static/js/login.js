@@ -140,8 +140,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (res_json.success) {
                 alert('Login successful! (This is a demo)');
-            } else {
-                alert('Incorrect username or password');
+            } else if (res_json.expired) {
+                alert("Key Expired! Fetching new key. Please try again.");
+                await getPublicKey();
+            }
+            else {
+                alert("Wrong Username or Password!");
             }
         });
     }
