@@ -6,7 +6,9 @@ from uuid import uuid4
 from db.redis_client import delete_key, set_key, get_key
 from typing import Optional
 import base64
+from app import app
 
+SECRET_KEY = app.config['SECRET_KEY']
 
 def generate_rsa_keys() -> tuple[bytes, bytes]:
     """
@@ -74,6 +76,6 @@ def getPrivateKey(kid: str) -> Optional[bytes]:
 def revokeKey(kid: str) -> None:
     delete_key(kid)
 
-
-def generate_refresh_access_tokens(user: User) -> dict[str, str]:
-    raise NotImplementedError
+def generate_token(user_id: str, refresh: bool = True):
+    
+    pass
