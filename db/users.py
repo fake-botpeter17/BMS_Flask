@@ -1,13 +1,16 @@
 from .connection import getDB
 from pickle import load
 from bcrypt import hashpw
+from utils.types import User
 
 users = getDB()["users"]
 
 
-def getUser(usr):
+def getUser(usr, obj = False):
     user = users.find_one({"uid": usr}, {"_id": False})
-    return user
+    if obj:
+        return User(**user) if user else None
+    return user 
 
 
 def getUserSalt(salt_id):
@@ -16,6 +19,12 @@ def getUserSalt(salt_id):
     salt = data.get(salt_id)
     return salt
 
+def userIsAdmin(uid: str) -> bool:
+    user = getUser(uid)
+    role = user.get('designation')
+    if not user: 
+        return False
+    return role.casefold() == "Admin".casefold()
 
 def authenticated(user, password):
     salt = getUserSalt(user.get("salt"))
