@@ -74,7 +74,7 @@ def cache_items() -> None:
     write_json_file(cache_file, items_processed, indent=4)
 
 
-def get_items(isAdmin: bool) -> dict[int, dict]:
+def get_items(isAdmin: bool = False) -> dict[int, dict]:
     """
     Get items from the cache.
 
