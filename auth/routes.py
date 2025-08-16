@@ -1,5 +1,10 @@
-from flask import jsonify
-from .tokens import getKey
+from flask import jsonify, request
+
+from db.users import getUser
+from .tokens import getKey, verify_token
+from .responses import token_error, token_refreshed, token_missing
+from utils.types import User
+from db.redis_client import delete_key, get_key
 from auth import auth_bp
 
 
@@ -7,3 +12,20 @@ from auth import auth_bp
 def get_temp_key():
     kid, public_key = getKey()
     return jsonify({"kid": kid, "public_key": public_key.decode()}), 200
+
+
+@auth_bp.route('/refresh', methods=["POST"])
+def refresh_token():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return token_missing()
+
+    token = auth_header.split(' ')[1]
+    data = verify_token(token)
+    if data is None:
+        return token_error()
+    if get_key(token) != data['id']:
+        return token_error()
+    user = User(**getUser(data['id']))
+    delete_key(token)
+    return token_refreshed(user)
