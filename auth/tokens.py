@@ -7,9 +7,9 @@ from jwt import encode, InvalidTokenError, ExpiredSignatureError, decode
 from db.redis_client import delete_key, set_key, get_key
 from typing import Optional
 import base64
-from app import app
+from config import Config
 
-SECRET_KEY = app.config["SECRET_KEY"]
+SECRET_KEY = Config.SECRET_KEY
 
 
 def generate_rsa_keys() -> tuple[bytes, bytes]:
@@ -79,8 +79,8 @@ def revokeKey(kid: str) -> None:
     delete_key(kid)
 
 
-def generate_token(user_id: str, refresh: bool = True):
-    exp = {"days": 7} if refresh else {"mins": 30}
+def generate_token(user_id: str, refresh: bool = False):
+    exp = {"days": 7} if refresh else {"minutes": 30}
     payload = {
         "user_id": user_id,
         "exp": datetime.datetime.now(datetime.timezone.utc)
