@@ -8,6 +8,7 @@ from .tokens import (
     revokeKey,
     generate_refresh_access_tokens,
 )
+from .responses import key_error
 from utils.types import User
 
 
@@ -16,6 +17,8 @@ def authenticate_user():
     data = request.json
     kid = data.get("kid")
     private_key = getPrivateKey(kid)
+    if private_key is None:
+        return key_error()
     decrypted_data = loads(
         decrypt_with_private_key(private_key, data.get("encrypted_data"))
     )
