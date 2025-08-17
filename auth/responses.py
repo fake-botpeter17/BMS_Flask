@@ -93,3 +93,9 @@ def token_refreshed(user: User):
     )
     set_key(refresh_token, user.uid, expire=7 * 24 * 60 * 60)
     return res, 200
+
+def user_logged_out():
+    return jsonify({
+  "success": True,
+  "message": "Logout successful"
+}), 200

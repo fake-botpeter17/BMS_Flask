@@ -9,7 +9,7 @@ from .tokens import (
     revokeKey
 )
 from utils.types import User
-from .responses import auth_failed, key_error, user_authenticated, token_missing
+from .responses import auth_failed, key_error, user_authenticated, token_missing, user_logged_out
 
 
 @auth_bp.route("/", methods=["POST"])
@@ -40,4 +40,4 @@ def logout():
     if not refresh:
         return token_missing()
     revokeKey(refresh)
-    return True
+    return user_logged_out()
