@@ -10,3 +10,8 @@ app.register_blueprint(auth_bp)
 @app.route("/", methods=["GET"])
 def login():
     return render_template("login.html")
+
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')

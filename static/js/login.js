@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const refreshed = await refreshAccessToken();
     if (refreshed) {
         // Already logged in → redirect
-        window.location.href = "/inventory/getItems";
+        window.location.href = "/dashboard";
         return;
     }
 
