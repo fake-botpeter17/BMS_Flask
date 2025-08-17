@@ -1,0 +1,17 @@
+.gradient-bg {
+    background: linear-gradient(135deg, #2E8B57 0%, #FF7F50 100%);
+}
+.card-shadow {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.quick-action:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+.stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+.stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  }
