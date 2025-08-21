@@ -8,9 +8,11 @@ dependencies = [
     "bcrypt>=4.3.0",
     "dotenv>=0.9.9",
     "flask>=3.1.1",
+    "flask-socketio>=5.5.1",
     "pycryptodome>=3.23.0",
     "pydantic>=2.11.7",
     "pyjwt>=2.10.1",
     "pymongo>=4.14.0",
+    "qrcode[pil]>=8.2",
     "redis>=6.4.0",
 ]
