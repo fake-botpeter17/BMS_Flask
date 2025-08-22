@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Paradise - QR Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        seagreen: '#2E8B57',
+                        coral: '#FF7F50',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link rel="stylesheet" href="{{url_for('static', filename = 'styles/qr.css')}}">
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-blue-50 min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-seagreen text-white p-6 text-center">
+            <h1 class="text-2xl font-bold">Fashion Paradise</h1>
+            <p class="text-white/80 mt-1">Secure QR Payment</p>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="p-6">
+            <!-- QR Code Container -->
+            <div id="qrContainer" class="qr-container flex flex-col items-center justify-center min-h-[300px]">
+                <!-- Default state (shown when no QR code is available) -->
+                <div id="welcomeState" class="text-center">
+                    <div class="mx-auto w-48 h-48 bg-indigo-100 rounded-full flex items-center justify-center animate-pulse mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Ready for Payment</h2>
+                    <p class="text-gray-500 mt-2">Waiting for transaction details...</p>
+                </div>
+                
+                <!-- QR Code State (hidden by default) -->
+                <div id="qrState" class="hidden text-center">
+                    <div id="amountDisplay" class="text-3xl font-bold text-coral mb-4">₹0</div>
+                    <div class="relative">
+                        <div id="qrCode" class="mx-auto p-4 bg-white rounded-lg border border-gray-200" role="img" aria-label="QR Code for payment"></div>
+                        <div class="mt-6 flex justify-center">
+                            <div class="relative w-20 h-20">
+                                <svg class="w-full h-full" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                                    <circle id="timerPath" class="timer-ring" cx="50" cy="50" r="45" fill="none" stroke="#4f46e5" stroke-width="8" stroke-linecap="round"/>
+                                </svg>
+                                <div id="timerText" class="absolute inset-0 flex items-center justify-center text-sm font-bold text-indigo-600">30</div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <p class="text-gray-500 mt-4">Scan this QR code with your payment app</p>
+                </div>
+                
+                <!-- Success State (hidden by default) -->
+                <div id="successState" class="hidden text-center">
+                    <div class="mx-auto w-48 h-48 bg-green-100 rounded-full flex items-center justify-center mb-6 transition-transform duration-500 transform scale-0" id="successIcon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Payment Completed</h2>
+                    <p class="text-gray-500 mt-2">Thank you for shopping with Fashion Paradise!</p>
+                    <button onclick="resetToWelcome()" class="mt-4 px-4 py-2 bg-seagreen text-white rounded-lg hover:bg-seagreen/90 transition-colors">
+                        Done
+                    </button>
+                </div>
+
+                <!-- Expired State (hidden by default) -->
+                <div id="expiredState" class="hidden text-center">
+                    <div class="mx-auto w-48 h-48 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">QR Code Expired</h2>
+                    <p class="text-gray-500 mt-2">Please request a new payment QR code</p>
+                    <button onclick="resetToWelcome()" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-seagreen/10 p-4 text-center border-t border-seagreen/20">
+            <p class="text-sm text-gray-600">Secure payment processing powered by <span class="font-medium text-seagreen">Fashion Paradise</span></p>
+        </div>
+    </div>
+    <script src="{{url_for('static', filename = 'js/qr.js')}}"></script>
+</body>
+</html>

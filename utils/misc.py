@@ -1,6 +1,9 @@
 from threading import Event, Thread
 from pathlib import Path
 from json import load, dump
+import qrcode
+import base64
+from io import BytesIO
 
 
 def run_periodically(func, interval=30 * 60, *args, **kwargs):
@@ -57,3 +60,14 @@ def write_json_file(path: Path, data, indent = 4):
     """
     with open(path, 'w') as f:
         dump(data, fp=f, indent = indent)
+
+def generate_qr_base64(data):
+    qr = qrcode.make(data)
+
+    # Save to a bytes buffer
+    buffered = BytesIO()
+    qr.save(buffered, format="PNG")
+
+    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+    return img_str
