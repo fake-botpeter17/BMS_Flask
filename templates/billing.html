@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Paradise - Billing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        seagreen: {
+                            700: '#2E8B57',
+                            800: '#2E7D5A',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/notification.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/billing.css') }}">
+</head>
+<body class="bg-gray-100">
+    <div id="toastContainer"></div>
+    <!-- Header Section -->
+    <header class="bg-seagreen-800 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-store text-3xl mr-3 text-orange-400"></i>
+                <h1 class="text-2xl font-bold">Fashion Paradise</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm">Welcome, <span id="currentUser" class="font-semibold">User</span></span>
+                <button id="logoutBtn" class="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md font-medium transition-colors">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4">
+        <!-- Bill Info Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-seagreen-800">New Bill</h2>
+                    <div class="text-gray-600">
+                        <span id="currentDate" class="mr-4"></span>
+                        <span id="currentTime"></span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-gray-600">Bill Number:</div>
+                    <div id="billNumber" class="text-xl font-bold text-orange-500">FP-...</div>
+                </div>
+            </div>
+
+            <!-- Barcode Scanner Section -->
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <input type="text" id="barcodeInput" placeholder="Scan barcode or enter manually" 
+                           class="flex-grow p-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-orange-400">
+                    <button id="scanBtn" class="bg-seagreen-700 hover:bg-seagreen-800 text-white px-4 py-3 rounded-r-md transition-colors">
+                        <i class="fas fa-barcode mr-2"></i>Scan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead class="bg-seagreen-700 text-white">
+                        <tr>
+                            <th class="py-3 px-4 text-left">S.No</th>
+                            <th class="py-3 px-4 text-left">Item Name</th>
+                            <th class="py-3 px-4 text-left">Rate</th>
+                            <th class="py-3 px-4 text-left">Qty</th>
+                            <th class="py-3 px-4 text-left">Disc. (₹)</th>
+                            <th class="py-3 px-4 text-left">Disc. (%)</th>
+                            <th class="py-3 px-4 text-left">Amount</th>
+                            <th class="py-3 px-4 text-left">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody" class="divide-y divide-gray-200">
+                        <!-- Items will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals Section -->
+            <div class="mt-6 flex justify-end">
+                <div class="w-full md:w-1/3 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-medium">Total:</span>
+                        <span id="totalAmount" class="font-medium">₹0.00</span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                        <span class="font-medium">Discount:</span>
+                        <span id="totalDiscount" class="text-red-500">-₹0.00</span>
+                    </div>
+                    <hr class="my-2 border-gray-300">
+                    <div class="flex justify-between text-lg font-bold">
+                        <span>Net Total:</span>
+                        <span id="netTotal" class="text-seagreen-700">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-6 flex justify-end space-x-4">
+                <button id="clearBillBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-md font-medium transition-colors">
+                    <i class="fas fa-trash-alt mr-2"></i>Clear Bill
+                </button>
+                <button id="printBillBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium transition-colors">
+                    <i class="fas fa-print mr-2"></i>Print Bill
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="text-xl font-bold text-seagreen-800 mb-4">Payment Details</h2>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Payment Mode:</label>
+                <div class="flex space-x-4">
+                    <button id="cashPaymentBtn" class="flex-1 bg-seagreen-100 hover:bg-seagreen-200 text-seagreen-800 px-4 py-2 rounded-md border border-seagreen-300 font-medium transition-colors">
+                        <i class="fas fa-money-bill-wave mr-2"></i>Cash
+                    </button>
+                    <button id="upiPaymentBtn" class="flex-1 bg-seagreen-100 hover:bg-seagreen-200 text-seagreen-800 px-4 py-2 rounded-md border border-seagreen-300 font-medium transition-colors">
+                        <i class="fas fa-mobile-alt mr-2"></i>UPI
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Cash Payment Section -->
+            <div id="cashPaymentSection" class="hidden mb-4">
+                <div class="mb-3">
+                    <label for="cashReceived" class="block text-gray-700 mb-1">Amount Received:</label>
+                    <input type="number" id="cashReceived" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400">
+                </div>
+                <div class="bg-gray-100 p-3 rounded-md">
+                    <div class="flex justify-between font-medium">
+                        <span>Balance to Return:</span>
+                        <span id="balanceAmount" class="text-seagreen-700">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- UPI Payment Section -->
+            <div id="upiPaymentSection" class="hidden mb-4">
+                <div class="bg-blue-50 p-4 rounded-md border border-blue-200">
+                    <p class="text-blue-800 mb-3">UPI Payment Request Sent</p>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium">Amount: <span id="upiAmount" class="text-seagreen-700">₹0.00</span></p>
+                        </div>
+                        <button id="upiReceivedBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium transition-colors">
+                            <i class="fas fa-check-circle mr-2"></i>Payment Received
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button id="cancelPaymentBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md font-medium transition-colors">
+                    Cancel
+                </button>
+                <button id="confirmPaymentBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md font-medium transition-colors">
+                    Confirm & Print
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Section (Hidden until printing) -->
+    <div id="printSection" class="print-only">
+        <div class="print-section p-6">
+            <div class="text-center mb-4">
+                <h1 class="text-2xl font-bold text-seagreen-800">Fashion Paradise</h1>
+                <p class="text-sm">123 Fashion Street, Style City</p>
+                <p class="text-sm">Phone: 9876543210 | GSTIN: 22ABCDE1234F1Z5</p>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex justify-between text-sm">
+                    <span>Bill No: <span id="printBillNo">FP-1001</span></span>
+                    <span>Date: <span id="printBillDate">01.01.2023</span></span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span>Billed By: <span id="printBilledBy">Admin</span></span>
+                    <span>Time: <span id="printBillTime">12:00:00</span></span>
+                </div>
+            </div>
+            
+            <hr class="border-black my-2">
+            
+            <table class="w-full text-sm">
+                <thead>
+                    <tr>
+                        <th class="text-left py-1">S.No</th>
+                        <th class="text-left py-1">Item</th>
+                        <th class="text-left py-1">Rate</th>
+                        <th class="text-left py-1">Qty</th>
+                        <th class="text-left py-1">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="printItemsBody">
+                    <!-- Items will be added here for printing -->
+                </tbody>
+            </table>
+            
+            <hr class="border-black my-2">
+            
+            <div class="text-right">
+                <div class="mb-1">Total: <span id="printTotal">₹0.00</span></div>
+                <div class="mb-1">Discount: <span id="printDiscount">-₹0.00</span></div>
+                <div class="font-bold">Net Total: <span id="printNetTotal">₹0.00</span></div>
+            </div>
+            
+            <div class="text-center mt-6">
+                <p>Thank you! Visit Again!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/notification.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/requests.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/billing.js') }}"></script>
+</body>
+</html>

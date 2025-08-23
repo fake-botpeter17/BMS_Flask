@@ -2,6 +2,7 @@ from flask import request
 from auth import auth_bp
 from json import loads
 from auth.decorators import require_auth
+from db.redis_client import set_key
 from db.users import getUser, authenticated
 from .tokens import (
     getPrivateKey,
@@ -35,9 +36,11 @@ def authenticate_user():
 
 @auth_bp.route('/logout')
 @require_auth
-def logout():
+def logout(**kwargs):
     refresh = request.cookies.get('refresh_token')
+    access = request.headers.get("Authorization").split(" ")[1]
     if not refresh:
-        return token_missing()
+        return token_missing(logged_out=True)
     revokeKey(refresh)
+    set_key(access, "revoked", 30 * 60)
     return user_logged_out()

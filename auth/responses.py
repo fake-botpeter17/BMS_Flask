@@ -27,12 +27,13 @@ def token_error():
     ), 401
 
 
-def token_missing():
+def token_missing(logged_out = False):
     return jsonify(
         {
             "error": "unauthorized",
             "status": "failure",
             "message": "Missing Refresh Token",
+            "logged_out": logged_out
         }
     ), 401
 
@@ -59,6 +60,7 @@ def user_authenticated(user: User):
     }
     refresh_token = generate_token(user.uid, refresh=True)
     res = jsonify(data)
+    print(f"User authenticated: {data}")
     res.set_cookie(
         "refresh_token",
         refresh_token,
@@ -96,6 +98,7 @@ def token_refreshed(user: User):
 
 def user_logged_out():
     return jsonify({
-  "success": True,
-  "message": "Logout successful"
-}), 200
+        "success": True,
+        "message": "Logout successful",
+        "logged_out" : True
+    }), 200
