@@ -14,19 +14,19 @@ def get_temp_key():
 
 @auth_bp.route("/refresh", methods=["POST"])
 def refresh_token():
-    token = request.cookies.get('refresh_token')
+    refresh_token = request.cookies.get('refresh_token')
 
-    if not token:
+    if not refresh_token:
         return token_missing()
 
-    data = verify_token(token)
+    data = verify_token(refresh_token)
 
     if data is None:
         return token_error()
 
-    if get_key(token) != data["user_id"]:
+    if get_key(refresh_token) != data["user_id"]:
         return token_error()
 
     user = getUser(data["user_id"],obj=True)
-    delete_key(token)
+    delete_key(refresh_token)
     return token_refreshed(user)
