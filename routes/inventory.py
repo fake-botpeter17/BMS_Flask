@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from db.inventory import get_items
 from auth.decorators import require_auth
 

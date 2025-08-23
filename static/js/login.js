@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const refreshed = await refreshAccessToken();
     if (refreshed) {
         // Already logged in → redirect
-        window.location.href = "/inventory/getItems";
+        window.location.href = "/billing/";
         return;
     }
 
@@ -98,7 +98,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (res_json.success) {
                 sessionStorage.setItem("access",res_json.access_token);
-                window.location.href = '/inventory/getItems';
+                sessionStorage.setItem("userID", res_json.user.uid);
+                sessionStorage.setItem("userDesignation", res_json.designation);
+                sessionStorage.setItem("userName", res_json.user.name);
+                window.location.href = '/billing/';
             } else if (res_json.expired) {
                 await getPublicKey();
 

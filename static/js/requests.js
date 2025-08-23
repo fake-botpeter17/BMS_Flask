@@ -39,8 +39,7 @@ async function importPublicKey(pem) {
 
 async function apiFetch(url, options = {}) {
     if (!options.headers) options.headers = {};
-    options.headers["Authorization"] = `Bearer ${window.accessToken}`;
-
+    options.headers["Authorization"] = `Bearer ${sessionStorage.access}`;
     let res = await fetch(url, options);
 
     if (res.status === 401) {
@@ -53,7 +52,7 @@ async function apiFetch(url, options = {}) {
         }
 
         // Retry request with new token
-        options.headers["Authorization"] = `Bearer ${window.accessToken}`;
+        options.headers["Authorization"] = `Bearer ${sessionStorage.access}`;
         res = await fetch(url, options);
     }
 
