@@ -7,6 +7,7 @@ from db.users import getUser
 from routes.inventory import inventory_bp
 from auth.routes import auth_bp
 from routes.billing import billing_bp
+from utils.types import User
 
 app = Flask(__name__)
 socket = SocketIO(app)
@@ -29,4 +30,4 @@ def user_info(**kwargs):
     if not token_payload: 
         return token_error()
     uid = token_payload["user_id"]
-    return getUser(uid)
+    return User(**getUser(uid)).model_dump()
