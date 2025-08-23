@@ -429,8 +429,9 @@ async function logout() {
     if (res.success) {
         // In a real app, this would redirect to login page
         showToast('Logged out successfully!', 'success');
-        setTimeout(() => { }, 3);
-        window.location.href = "/";
+        setTimeout(() => {
+            window.location.href = "/";
+         }, 300);
     }
 }
 
