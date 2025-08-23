@@ -47,7 +47,7 @@ async function apiFetch(url, options = {}) {
         const refreshed = await refreshAccessToken();
         if (!refreshed) {
             // Refresh failed → force login
-            window.location.href = "/auth/login";
+            window.location.href = "/";
             return;
         }
 
