@@ -1,11 +1,11 @@
 // Sample database of items (in a real app, this would come from an API)
-const itemDatabase = await fetch('/inventory/getItems');
+let itemDatabase;
 
 
 // Current bill items
 let billItems = [];
-let billCounter = 1001;
-let currentUser = "Admin";
+let billCounter;
+let currentUser;
 
 // DOM Elements
 const barcodeInput = document.getElementById('barcodeInput');
@@ -29,6 +29,7 @@ const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
 const cancelPaymentBtn = document.getElementById('cancelPaymentBtn');
 const currentDate = document.getElementById('currentDate');
 const currentTime = document.getElementById('currentTime');
+const currentUserName = document.getElementById("currentUser");
 const billNumber = document.getElementById('billNumber');
 const logoutBtn = document.getElementById('logoutBtn');
 const printSection = document.getElementById('printSection');
@@ -71,7 +72,7 @@ function updateDateTime() {
 
 // Generate a new bill number
 function generateBillNumber() {
-    billNumber.textContent = `FP-${billCounter++}`;
+    billNumber.textContent = `FP-${++billCounter}`;
 }
 
 // Handle barcode scanning
@@ -106,11 +107,11 @@ function addItemToBill(barcode) {
         const newItem = {
             barcode: barcode,
             name: item.name,
-            rate: item.rate,
+            rate: item.sp,
             quantity: 1,
             discountAmount: 0,
-            discountPercent: item.discount,
-            amount: item.rate * (1 - item.discount / 100)
+            discountPercent: 0,
+            amount: item.sp * (1 - (0 / 100))
         };
         billItems.push(newItem);
     }
@@ -293,7 +294,7 @@ function clearBill() {
         billItems = [];
         renderBillItems();
         updateTotals();
-        generateBillNumber();
+        // generateBillNumber();
         updatePrintButtonState();
     }
 }
@@ -423,10 +424,13 @@ function showToast(message, type = 'info', duration = 3000) {
 }
 
 // Logout function
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
+async function logout() {
+    let res = await apiFetch("/auth/logout");
+    if (res.success) {
         // In a real app, this would redirect to login page
         showToast('Logged out successfully!', 'success');
+        setTimeout(() => { }, 3);
+        window.location.href = "/";
     }
 }
 
@@ -436,3 +440,17 @@ window.addEventListener('click', function (event) {
         closePaymentModal();
     }
 });
+
+async function setParams() {
+    itemDatabase = await apiFetch("/inventory/getItems");
+    const User = await apiFetch("/me");
+    billCounter = await apiFetch('/billing/getLastBillNo');
+    billNumber.innerHTML = `FP-${++billCounter}`;
+    currentUserName.innerHTML = User.name;
+    if (billCounter === null || User === null || itemDatabase === null) {
+        showToast("Error Occured! Please login again!");
+        logout();
+    }
+}
+
+setParams();
