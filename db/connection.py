@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from pymongo.synchronous.database import Database
 from utils.exceptions import DatabaseInitializationError
+from pymongo.synchronous.collection import Collection
 from dotenv import load_dotenv
 from os import getenv
 
@@ -19,3 +20,7 @@ db_name: str = getenv("DB_NAME")
 
 def getDB() -> Database:
     return client[db_name]
+
+inventory: Collection = getDB()["items"]
+users: Collection = getDB()["users"]
+bills: Collection = getDB()["bills"]

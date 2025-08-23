@@ -1,9 +1,8 @@
-from .connection import getDB
+from .connection import users
 from pickle import load
 from bcrypt import hashpw
 from utils.types import User
 
-users = getDB()["users"]
 
 
 def getUser(usr, obj = False):

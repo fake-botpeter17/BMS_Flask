@@ -1,13 +1,12 @@
 from pymongo.cursor import Cursor
-from pymongo.synchronous.collection import Collection
 from typing import Iterable, Generator
 from pathlib import Path
 from copy import deepcopy
-from .connection import getDB
+from .connection import inventory
 from utils.types import Item
 from utils.misc import run_periodically, read_json_file, write_json_file
 
-inventory: Collection = getDB()["items"]
+
 cache_file: Path = Path("resources", "inventory.json")
 cached_items: None | dict[int, Item] = None
 
